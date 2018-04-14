@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "675267110350",
+    "firebase_url": "https://geopending.firebaseio.com",
+    "project_id": "geopending",
+    "storage_bucket": "geopending.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675267110350:android:13d51610b273c0fe",
+        "android_client_info": {
+          "package_name": "com.plplim.david.geopending"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "675267110350-7m153ufbufseistra241umeb875vvg2a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.plplim.david.geopending",
+            "certificate_hash": "04a7a6751da05aa8143f4e9d6c338c135c3a6c69"
+          }
+        },
+        {
+          "client_id": "675267110350-a0aaagpo2obsaooe38mbi4cg6lac6at1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_wSgioilZTcvhrQJpMkhTClHGWqBQJM0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "675267110350-a0aaagpo2obsaooe38mbi4cg6lac6at1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

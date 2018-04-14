@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">GeoPending</string>
+    <string name="pass_hint">비밀번호</string>
+    <string name="email_hint">이메일</string>
+    <string name="login_logo_desc">Logo Login Page</string>
+    <string name="login_btn_text">로그인</string>
+    <string name="login_rerg_btn_text">회원가입</string>
+</resources>
