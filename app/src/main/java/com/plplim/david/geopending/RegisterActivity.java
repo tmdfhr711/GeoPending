@@ -61,7 +61,9 @@ public class RegisterActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
                                     //회원가입 성공
-                                    sendToMain();
+                                    Intent setupIntent = new Intent(RegisterActivity.this, SetupActivity.class);
+                                    startActivity(setupIntent);
+                                    finish();
                                 } else {
                                     String errorMessage = task.getException().getMessage();
                                     Toast.makeText(RegisterActivity.this, "Error : " + errorMessage, Toast.LENGTH_SHORT).show();
@@ -73,9 +75,15 @@ public class RegisterActivity extends AppCompatActivity {
                         });
                     } else {
                         Toast.makeText(RegisterActivity.this, "비밀번호를 다시 확인해주세요.", Toast.LENGTH_SHORT).show();
+                        registerButton.setEnabled(true);
+                        toLoginButton.setEnabled(true);
                     }
+
+
                 } else {
                     Toast.makeText(RegisterActivity.this, "모든 정보를 입력해주세요", Toast.LENGTH_SHORT).show();
+                    registerButton.setEnabled(true);
+                    toLoginButton.setEnabled(true);
                 }
             }
         });
