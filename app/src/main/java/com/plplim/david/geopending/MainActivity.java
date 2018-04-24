@@ -83,7 +83,9 @@ public class MainActivity extends AppCompatActivity {
 
 
                             } else if (doc.getType() == DocumentChange.Type.MODIFIED) {
-                                modifyItem(doc.getDocument().getId(), doc.getDocument().toObject(Users.class));
+                                String userid = doc.getDocument().getId();
+                                Users get_user = doc.getDocument().toObject(Users.class).withId(userid);
+                                modifyItem(userid, get_user);
                             } else if (doc.getType() == DocumentChange.Type.REMOVED) {
                                 deleteItem(doc.getDocument().getId());
                             }
@@ -115,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
             index++;
         }*/
 
+        Log.e("MODIFYITEM", users.getName().toString());
         for(int i = 0; i < usersList.size(); i++) {
             //Log.d(TAG, "DELETE_ITEM\n" + "DeleteKey : " + deleteKey + "\nuserListID : " + item.userId);
             if (modifyItem.equals(usersList.get(i).userId)) {
