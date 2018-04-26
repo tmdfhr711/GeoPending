@@ -20,4 +20,7 @@
     <string name="setup_name_hint">이름</string>
     <string name="setup_button_save">저장하기</string>
     <string name="setup_group_hint">그룹</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
