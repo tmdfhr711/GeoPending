@@ -1,7 +1,10 @@
 package com.plplim.david.geopending;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.internal.BottomNavigationItemView;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private List<Users> usersList;
     private UsersListAdapter usersListAdapter;
 
+    private BottomNavigationView bottomNavigationView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +70,25 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(usersListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.mainBottomnavigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_people:
+                        Toast.makeText(MainActivity.this, "people click", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.action_map:
+                        Toast.makeText(MainActivity.this, "map click", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.action_account:
+                        Toast.makeText(MainActivity.this, "account click", Toast.LENGTH_SHORT).show();
+                        return true;
+                }
+                return false;
+            }
+        });
 
         FirebaseFirestore.getInstance().collection("Users")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
