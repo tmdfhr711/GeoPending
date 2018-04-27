@@ -1,13 +1,18 @@
 package com.plplim.david.geopending;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -27,6 +32,52 @@ public class MainActivity extends AppCompatActivity {
     private MapFragment mapFragment;
     private AccountFragment accountFragment;
 
+    private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int LOCATION_PERMISSION_REQEUST_CODE = 1234;
+
+    private  void getLocationPermission() {
+        Log.d(TAG, "getLocationPermission: getting location permissions");
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+
+        if(ContextCompat.checkSelfPermission(this,FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            if(ContextCompat.checkSelfPermission(this,COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                Log.d(TAG, "getLocationPermission: granted");
+                replaceFragment(mapFragment);
+                getSupportActionBar().setTitle("Map");
+            } else {
+                Log.d(TAG, "getLocationPermission: coarselocation denied");
+                ActivityCompat.requestPermissions(this,permissions, LOCATION_PERMISSION_REQEUST_CODE);
+            }
+        } else {
+            Log.d(TAG, "getLocationPermission: findlocation denied");
+            ActivityCompat.requestPermissions(this,permissions, LOCATION_PERMISSION_REQEUST_CODE);
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult: called");
+
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQEUST_CODE : {
+                if (grantResults.length > 0) {
+                    for(int i = 0; i< grantResults.length; i++) {
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            Log.d(TAG, "onRequestPermissionsResult: permission failed");
+                            return;
+                        }
+                    }
+                    Log.d(TAG, "onRequestPermissionsResult: permission granted");
+                    //initialize our map
+                    replaceFragment(mapFragment);
+                    getSupportActionBar().setTitle("Map");
+                }
+                break;
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +102,14 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.action_people:
                         replaceFragment(peopleFragment);
+                        getSupportActionBar().setTitle("People");
                         return true;
                     case R.id.action_map:
-                        replaceFragment(mapFragment);
+                        getLocationPermission();
                         return true;
                     case R.id.action_account:
                         replaceFragment(accountFragment);
+                        getSupportActionBar().setTitle("Account");
                         return true;
                     default :
                         return false;
