@@ -9,16 +9,38 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
+
+import java.util.ArrayList;
 
 public class SplashActivity extends AppCompatActivity {
 
     private LinearLayout linearLayout;
     private FirebaseRemoteConfig firebaseRemoteConfig;
+
+
+    PermissionListener permissionListener = new PermissionListener() {
+        @Override
+        public void onPermissionGranted() {
+            //Toast.makeText(SplashActivity.this, "권한 허가", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+            finish();
+        }
+
+        @Override
+        public void onPermissionDenied(ArrayList<String> deniedPermissions) {
+            //Toast.makeText(SplashActivity.this, "권한 거부", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+            finish();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +68,7 @@ public class SplashActivity extends AppCompatActivity {
                         displayMessage();
                     }
                 });
+
     }
     private void displayMessage() {
         String splash_background = firebaseRemoteConfig.getString("splash_background");
@@ -66,8 +89,12 @@ public class SplashActivity extends AppCompatActivity {
 
             builder.create().show();
         } else {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            TedPermission.with(SplashActivity.this)
+                    .setPermissionListener(permissionListener)
+                    .setRationaleConfirmText("구글맵을 사용하기 위해서 위치 접근 권한이 필요해요~")
+                    .setDeniedMessage("왜 거부하셨어요...\\n하지만 [설정] > [권한] 에서 권한을 허용할 수 있어요.")
+                    .setPermissions(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    .check();
         }
 
 

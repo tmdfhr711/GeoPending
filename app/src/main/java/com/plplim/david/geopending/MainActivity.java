@@ -108,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
                         getLocationPermission();
                         return true;
                     case R.id.action_account:
-                        replaceFragment(accountFragment);
+                        //replaceFragment(accountFragment);
+                        replaceFragment(new GeoPickFragment());
                         getSupportActionBar().setTitle("Account");
                         return true;
                     default :
