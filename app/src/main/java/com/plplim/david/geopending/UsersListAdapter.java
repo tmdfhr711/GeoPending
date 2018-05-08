@@ -36,6 +36,8 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.support.constraint.Constraints.TAG;
+
 /**
  * Created by OHRok on 2018-04-19.
  */
@@ -112,16 +114,32 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.View
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         firebaseAuth = FirebaseAuth.getInstance();
-                        String uid = firebaseAuth.getCurrentUser().getUid();
-                        GeoPickFragment geoPickFragment = new GeoPickFragment();
-                        Bundle bundle = new Bundle(2);
-                        bundle.putString("uid", uid);
-                        bundle.putString("destinationUid", destinationUid);
-                        geoPickFragment.setArguments(bundle);
-                        FragmentTransaction fragmentTransaction = ((AppCompatActivity)context).getSupportFragmentManager().beginTransaction();
-                        fragmentTransaction.replace(R.id.main_container, geoPickFragment);
-                        fragmentTransaction.commit();
-                        ((AppCompatActivity)context).getSupportActionBar().setTitle("위치 선택");
+                        final String uid = firebaseAuth.getCurrentUser().getUid();
+                        firebaseFirestore = FirebaseFirestore.getInstance();
+                        firebaseFirestore.collection("TrakingRooms").document(uid)
+                                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document != null && document.exists()) {
+                                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                        Toast.makeText(context, "다른사람과 이미 연동되어 있습니다." , Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Log.d(TAG, "No such document");
+                                        GeoPickFragment geoPickFragment = new GeoPickFragment();
+                                        Bundle bundle = new Bundle(2);
+                                        bundle.putString("uid", uid);
+                                        bundle.putString("destinationUid", destinationUid);
+                                        geoPickFragment.setArguments(bundle);
+                                        FragmentTransaction fragmentTransaction = ((AppCompatActivity)context).getSupportFragmentManager().beginTransaction();
+                                        fragmentTransaction.replace(R.id.main_container, geoPickFragment);
+                                        fragmentTransaction.commit();
+                                        ((AppCompatActivity)context).getSupportActionBar().setTitle("위치 선택");
+                                    }
+                                }
+                            }
+                        });
                     }
                 });
         builder.setNegativeButton("취소",

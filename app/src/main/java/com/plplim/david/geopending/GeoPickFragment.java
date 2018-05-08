@@ -116,9 +116,9 @@ public class GeoPickFragment extends Fragment implements OnConnectionFailedListe
                 trakingModel.setRuleLong(longitude);
                 trakingModel.setRuleRadius(radius);
                 firebaseFirestore = FirebaseFirestore.getInstance();
-                firebaseFirestore.collection("TrakingRooms").add(trakingModel).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                firebaseFirestore.collection("TrakingRooms").document(uid).set(trakingModel).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
+                    public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             //상대방에게 푸쉬 메세지 보내기
                             Toast.makeText(getContext(), "트래킹 요청을 보냈습니다", Toast.LENGTH_SHORT).show();

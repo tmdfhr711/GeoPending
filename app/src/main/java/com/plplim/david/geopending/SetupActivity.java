@@ -189,8 +189,8 @@ public class SetupActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(SetupActivity.this, "정보가 수정되었습니다", Toast.LENGTH_LONG).show();
-                    //Intent mainIntent = new Intent(SetupActivity.this, MainActivity.class);
-                    //startActivity(mainIntent);
+                    Intent mainIntent = new Intent(SetupActivity.this, MainActivity.class);
+                    startActivity(mainIntent);
                     finish();
                 } else {
 

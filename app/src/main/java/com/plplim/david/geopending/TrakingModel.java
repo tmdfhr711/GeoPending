@@ -94,11 +94,11 @@ public class TrakingModel {
         this.timestamp = timestamp;
     }
 
-    public boolean isDestination() {
+    public boolean isDestinationCheck() {
         return destinationCheck;
     }
 
-    public void setDestinationCheck(boolean destination) {
-        destinationCheck = destination;
+    public void setDestinationCheck(boolean destinationCheck) {
+        this.destinationCheck = destinationCheck;
     }
 }

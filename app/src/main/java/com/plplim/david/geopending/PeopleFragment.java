@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,6 +31,7 @@ public class PeopleFragment extends Fragment {
     private RecyclerView recyclerView;
     private UsersListAdapter usersListAdapter;
     private FirebaseFirestore firebaseFirestore;
+    private FirebaseAuth firebaseAuth;
 
     private List<Users> usersList;
 
@@ -42,7 +44,7 @@ public class PeopleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_people, container, false);
-
+        firebaseAuth = FirebaseAuth.getInstance();
         recyclerView = view.findViewById(R.id.peopleRecyclerView);
         firebaseFirestore = FirebaseFirestore.getInstance();
 
@@ -60,6 +62,9 @@ public class PeopleFragment extends Fragment {
                         Log.e(TAG, "FirebaseStore CALLBACK");
                         if (e != null) {
                             Log.d(TAG, "Error : " + e.getMessage());
+                        }
+                        if (firebaseAuth == null) {
+                            return;
                         }
 
                         //usersList.clear();

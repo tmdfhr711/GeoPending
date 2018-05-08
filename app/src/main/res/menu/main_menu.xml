@@ -13,5 +13,8 @@
     <item
         android:id="@+id/action_logout_button"
         android:title="@string/action_logout_button" />
+    <item
+        android:id="@+id/action_updateLocation_button"
+        android:title="위치추적" />
 
 </menu>
