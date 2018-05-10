@@ -43,7 +43,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity Firebase";
 
@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
+    private MyLocationService myLocationService;
 
     private void getLocationPermission() {
         Log.d(TAG, "getLocationPermission: getting location permissions");
@@ -105,8 +106,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }, MY_PERMISSION_REQUEST_CODE);
         } else {
             if (checkPlayServices()) {
-                buildGoogleApiClient();
-                createLocationRequest();
+                //doing somthing...
             }
         }
 
@@ -137,79 +137,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             case MY_PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (checkPlayServices()) {
-                        buildGoogleApiClient();
+                        //buildGoogleApiClient();
                     }
                 }
                 break;
         }
-    }
-
-    private void sendLocationToFirestore(final double latitude, final double longitude) {
-        //나와 연동되어 있는 걸 찾아야함
-        firebaseAuth = FirebaseAuth.getInstance();
-        String uid = firebaseAuth.getCurrentUser().getUid();
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        firebaseFirestore.collection("TrakingRooms")
-                .whereEqualTo("destinationUid", uid)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        TrakingModel trakingModel = null;
-                        if (task.isSuccessful()) {
-                            //내가 트래킹 당하고 있는 데이터베이스를 가져옴
-                            for (DocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-                                trakingModel = document.toObject(TrakingModel.class);
-                                Log.d(TAG, "onComplete: " + trakingModel.getUid() + " , " + trakingModel.getDestinationUid());
-                            }
-                            //내가 트래킹 당하고 있는 데이터베이스 정보를 가져와서 정보를 update시킴
-                            if (trakingModel != null && trakingModel.isDestinationCheck()) {
-                                trakingModel.setDestinationLatitude(latitude);
-                                trakingModel.setDestinationLongitude(longitude);
-                                firebaseFirestore.collection("TrakingRooms").document(trakingModel.getUid()).set(trakingModel).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        Log.d(TAG, "onComplete: success");
-                                    }
-                                });
-                            }
-
-                        }
-                    }
-                });
-    }
-    private void displayLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (mLastLocation != null) {
-            double latitude = mLastLocation.getLatitude();
-            double longitude = mLastLocation.getLongitude();
-            Log.d(TAG, "displayLocation: " + String.valueOf(latitude) + " , " + String.valueOf(longitude));
-            sendLocationToFirestore(latitude, longitude);
-        } else {
-            Log.d(TAG, "displayLocation: " + "Couldn't get the location. Make sure location is enable on the device");
-        }
-    }
-
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FATEST_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
-    }
-
-    private synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build();
-
-        mGoogleApiClient.connect();
     }
 
     private boolean checkPlayServices() {
@@ -224,57 +156,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             return false;
         }
         return true;
-    }
-
-    private void startLocationUpdates() {
-        Log.d(TAG, "startLocationUpdates: ");
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-    }
-
-    private void stopLocationUpdates() {
-        Log.d(TAG, "stopLocationUpdates: ");
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-    }
-
-    public void tooglePeriodicLocationUdates() {
-        if (!mRequestingLocationUpdates) {
-            //button.setText("Stop location update");
-            mRequestingLocationUpdates = true;
-            startLocationUpdates();
-            getSupportActionBar().setTitle("위치추적중..");
-        } else {
-            //button.setText("Start location update");
-            mRequestingLocationUpdates = false;
-            stopLocationUpdates();
-            getSupportActionBar().setTitle("Geo Pending");
-        }
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        displayLocation();
-        if (mRequestingLocationUpdates) {
-            startLocationUpdates();
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        displayLocation();
     }
 
     @Override
@@ -315,9 +196,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
         });
-
-        permissionForLocationApi();
-        //tooglePeriodicLocationUdates();
+        Intent intent = new Intent(MainActivity.this, MyLocationService.class);
+        startService(intent);
     }
 
     @Override
@@ -333,19 +213,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (currentUser == null) {
             sendToLogin();
         }
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
-        }
+
     }
 
     @Override
     protected void onStop() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.disconnect();
-        }
         super.onStop();
-
     }
 
     private void sendToLogin() {
@@ -373,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 startActivity(settingsIntent);
                 return true;
             case R.id.action_updateLocation_button:
-                //tooglePeriodicLocationUdates();
                 return true;
             default:
                 return false;

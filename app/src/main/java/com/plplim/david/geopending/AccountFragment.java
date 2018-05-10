@@ -2,6 +2,7 @@ package com.plplim.david.geopending;
 
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -66,6 +67,7 @@ public class AccountFragment extends Fragment implements OnMapReadyCallback, Goo
 
     private Switch aSwitch;
 
+    private MyLocationService myLocationService;
     TrakingModel trakingModel = null;
 
     public AccountFragment() {
@@ -98,12 +100,14 @@ public class AccountFragment extends Fragment implements OnMapReadyCallback, Goo
             //No Google Maps Layout
         }
 
+        myLocationService = new MyLocationService();
         return rootView;
     }
 
     private void setTrakingStatus(final boolean check) {
         Map<String, Boolean> set = new HashMap<>();
         set.put("destinationCheck", check);
+
         trakingModel.setDestinationCheck(check);
         if (trakingModel != null) {
             FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
