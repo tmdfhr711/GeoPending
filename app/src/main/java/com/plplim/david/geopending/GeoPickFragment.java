@@ -42,6 +42,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 import com.xw.repo.BubbleSeekBar;
@@ -115,6 +116,7 @@ public class GeoPickFragment extends Fragment implements OnConnectionFailedListe
                 trakingModel.setRuleLat(latitude);
                 trakingModel.setRuleLong(longitude);
                 trakingModel.setRuleRadius(radius);
+                trakingModel.setTo(FirebaseInstanceId.getInstance().getToken());
                 firebaseFirestore = FirebaseFirestore.getInstance();
                 firebaseFirestore.collection("TrakingRooms").document(uid).set(trakingModel).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override

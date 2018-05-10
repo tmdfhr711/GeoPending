@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -118,6 +119,7 @@ public class SetupActivity extends AppCompatActivity {
 
                 final String user_name = setupNameText.getText().toString();
                 final String user_group = setupGroupText.getText().toString();
+                final String user_token = FirebaseInstanceId.getInstance().getToken();
 
                 if (!TextUtils.isEmpty(user_name) && !TextUtils.isEmpty(user_group) && mainImageURI != null) {
                     setupProgress.setVisibility(View.VISIBLE);
@@ -133,7 +135,7 @@ public class SetupActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                 if (task.isSuccessful()) {
 
-                                    storeFirebaseStore(task, user_name,user_group);
+                                    storeFirebaseStore(task, user_name,user_group,user_token);
 
                                 } else {
                                     //업로드 실패
@@ -145,7 +147,7 @@ public class SetupActivity extends AppCompatActivity {
                             }
                         });
                     } else {
-                        storeFirebaseStore(null, user_name,user_group);
+                        storeFirebaseStore(null, user_name,user_group,user_token);
                     }
                 }
             }
@@ -170,7 +172,7 @@ public class SetupActivity extends AppCompatActivity {
 
     }
 
-    private void storeFirebaseStore(@NonNull Task<UploadTask.TaskSnapshot> task, String user_name, String user_group) {
+    private void storeFirebaseStore(@NonNull Task<UploadTask.TaskSnapshot> task, String user_name, String user_group,String user_token) {
         Uri download_uri;
         if (task != null) {
             download_uri = task.getResult().getDownloadUrl();
@@ -183,6 +185,7 @@ public class SetupActivity extends AppCompatActivity {
         userMap.put("name", user_name);
         userMap.put("image", download_uri.toString());
         userMap.put("group", user_group);
+        userMap.put("token", user_token);
 
         firebaseFirestore.collection("Users").document(user_id).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

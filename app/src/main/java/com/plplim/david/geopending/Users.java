@@ -8,14 +8,16 @@ public class Users extends UserId{
     String image;
     String name;
     String group;
+    String token;
 
     public Users(){
 
     }
-    public Users(String image, String name, String group) {
+    public Users(String image, String name, String group, String token) {
         this.image = image;
         this.name = name;
         this.group = group;
+        this.token = token;
     }
 
     public String getImage() {
@@ -40,5 +42,13 @@ public class Users extends UserId{
 
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

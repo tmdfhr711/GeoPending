@@ -97,15 +97,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     trakingModel = task.getResult().toObject(TrakingModel.class);
                     //트레킹룸 정보를 이용해서 트레킹 시작하기
                     //트래킹 위치 셋팅
-                    if (trakingModel.isDestinationCheck()) {
-                        //상대방이 허락했을 떄
-                        setRuleInit(trakingModel.getRuleLat(), trakingModel.getRuleLong(), trakingModel.getRuleRadius());
-                        startTraking();
+                    if (trakingModel != null) {
+                        if (trakingModel.isDestinationCheck()) {
+                            //상대방이 허락했을 떄
+                            setRuleInit(trakingModel.getRuleLat(), trakingModel.getRuleLong(), trakingModel.getRuleRadius());
+                            startTraking();
+                        } else {
+                            //상대방이 허락하지 않았을 때
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            builder.setTitle("Geo Pending")
+                                    .setMessage("상대방이 트래킹을 허용하지 않아 지도에 보이지 않습니다.")
+                                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            return;
+                                        }
+                                    }).show();
+                        }
                     } else {
                         //상대방이 허락하지 않았을 때
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         builder.setTitle("Geo Pending")
-                                .setMessage("상대방이 트래킹을 허용하지 않아 지도에 보이지 않습니다.")
+                                .setMessage("트래킹을 트래킹 하고 있는 상대가 없습니다")
                                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -113,6 +126,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     }
                                 }).show();
                     }
+
                 } else {
                     //다이얼로그로 트래킹 할 대상이 없다고 띄워주고 마크 아무대나 찍기
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());

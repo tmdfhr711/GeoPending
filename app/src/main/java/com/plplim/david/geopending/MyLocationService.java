@@ -23,6 +23,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class MyLocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     private static final String MESSAGE_KEY = "locationEnable";
@@ -191,13 +203,44 @@ public class MyLocationService extends Service implements GoogleApiClient.Connec
         Log.d(TAG, "checkTraking: distance : " + String.valueOf(distance) + "\nruleRadius : " + String.valueOf(trakingModel.getRuleRadius()));
         if (trakingModel.getRuleRadius() < distance) {
             //반경을 벗어났을 때
-            sendNotification(trakingModel.getUid());
+            //sendNotification(trakingModel.getUid(), trakingModel.getDestinationUid());
+            sendNotification(trakingModel.getTo(), trakingModel.getDestinationUid());
         }
     }
 
-    private void sendNotification(String uid) {
+    private void sendNotification(String to, String from) {
         //상대방에게 알림 보내기
         Log.d(TAG, "sendNotification: 상대방이 위치를 벗어났습니다");
+        Gson gson = new Gson();
+        NotificationModel notificationModel = new NotificationModel();
+
+        notificationModel.to = to;
+        notificationModel.data.sender = from;
+        notificationModel.data.title = "상대방의 위치를 확인하세요!";
+        notificationModel.data.text = "반경을 벗어났습니다";
+        notificationModel.data.sound = "default";
+        notificationModel.data.priority = "high";
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf8"), gson.toJson(notificationModel));
+        Request request = new Request.Builder()
+                .header("Content-Type", "application/json")
+                .addHeader("Authorization", "key=AIzaSyBFKjMFI7-AV6YAaVTn9ndn8POm-vO19to")
+                .url("https://fcm.googleapis.com/fcm/send")
+                .post(requestBody)
+                .build();
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.e("SendGcm onResponse", response.toString());
+            }
+        });
     }
 
     @Override

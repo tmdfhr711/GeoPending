@@ -13,12 +13,13 @@ public class TrakingModel {
     public double destinationLongitude;
     public Object timestamp;
     public boolean destinationCheck = false;
+    public String to;
 
     public TrakingModel() {
     }
 
     public TrakingModel(String uid, String destinationUid, double ruleLat, double ruleLong, double ruleRadius,
-                        double destinationLatitude, double destinationLongitude, Object timestamp, boolean destinationCheck) {
+                        double destinationLatitude, double destinationLongitude, Object timestamp, boolean destinationCheck, String to) {
         this.uid = uid;
         this.destinationUid = destinationUid;
         this.ruleLat = ruleLat;
@@ -28,6 +29,7 @@ public class TrakingModel {
         this.destinationLongitude = destinationLongitude;
         this.timestamp = timestamp;
         this.destinationCheck = destinationCheck;
+        this.to = to;
     }
 
     public String getUid() {
@@ -100,5 +102,13 @@ public class TrakingModel {
 
     public void setDestinationCheck(boolean destinationCheck) {
         this.destinationCheck = destinationCheck;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
     }
 }

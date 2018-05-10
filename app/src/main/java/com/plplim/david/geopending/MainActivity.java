@@ -198,6 +198,12 @@ public class MainActivity extends AppCompatActivity {
         });
         Intent intent = new Intent(MainActivity.this, MyLocationService.class);
         startService(intent);
+        String str = getIntent().getStringExtra("MapFragment");
+        if (str != null) {
+            if (str.equals("mapfragment")) {
+                getLocationPermission();
+            }
+        }
     }
 
     @Override
