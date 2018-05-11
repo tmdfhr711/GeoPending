@@ -3,13 +3,13 @@
     <item
         android:id="@+id/action_people"
         android:icon="@drawable/ic_person_white_24dp"
-        android:title="People" />
+        android:title="@string/bottom_navigation_friend" />
     <item
         android:id="@+id/action_map"
         android:icon="@drawable/ic_map_white_24dp"
-        android:title="Chat" />
+        android:title="@string/bottom_navigation_maps" />
     <item
         android:id="@+id/action_account"
-        android:icon="@drawable/ic_account_circle_white_24dp"
-        android:title="Account" />
+        android:icon="@drawable/ic_settings_white_24dp"
+        android:title="@string/bottom_navigation_setting" />
 </menu>

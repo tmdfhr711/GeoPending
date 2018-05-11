@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(this, COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "getLocationPermission: granted");
                 replaceFragment(mapFragment);
-                getSupportActionBar().setTitle("Map");
+                getSupportActionBar().setTitle("지도");
             } else {
                 Log.d(TAG, "getLocationPermission: coarselocation denied");
                 ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_REQEUST_CODE);
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.action_people:
                         replaceFragment(peopleFragment);
-                        getSupportActionBar().setTitle("People");
+                        getSupportActionBar().setTitle("친구");
                         return true;
                     case R.id.action_map:
                         getLocationPermission();
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.action_account:
                         replaceFragment(accountFragment);
                         //replaceFragment(new GeoPickFragment());
-                        getSupportActionBar().setTitle("Account");
+                        getSupportActionBar().setTitle("설정");
                         return true;
                     default:
                         return false;
@@ -198,10 +198,12 @@ public class MainActivity extends AppCompatActivity {
         });
         Intent intent = new Intent(MainActivity.this, MyLocationService.class);
         startService(intent);
-        String str = getIntent().getStringExtra("MapFragment");
+        String str = getIntent().getStringExtra("fragment");
         if (str != null) {
-            if (str.equals("mapfragment")) {
+            if (str.equals("mapFragment")) {
                 getLocationPermission();
+            } else if (str.equals("accountFragment")) {
+                replaceFragment(accountFragment);
             }
         }
     }
@@ -250,8 +252,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings_button:
                 Intent settingsIntent = new Intent(MainActivity.this, SetupActivity.class);
                 startActivity(settingsIntent);
-                return true;
-            case R.id.action_updateLocation_button:
                 return true;
             default:
                 return false;

@@ -16,16 +16,18 @@ import com.google.firebase.messaging.RemoteMessage;
 
 public class MyFirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService{
     private static final String TAG = MyFirebaseMessagingService.class.getSimpleName();
+    private SharedPreferenceUtil preferenceUtil = new SharedPreferenceUtil(this);
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         String title = remoteMessage.getData().get("title").toString();
         String text = remoteMessage.getData().get("text").toString();
+        String category = remoteMessage.getData().get("category").toString();
         //String sender = remoteMessage.getData().get("sender").toString();
 
         Log.d(TAG, "onMessageReceived: " + remoteMessage.toString());
 
         if (remoteMessage.getData().size() > 0) {
-            sendNotification(title, text);
+            sendNotification(title, text,category);
         }
 
         Log.d(TAG, "From: " + remoteMessage.getFrom());
@@ -53,9 +55,18 @@ public class MyFirebaseMessagingService extends com.google.firebase.messaging.Fi
         // message, here is where that should be initiated. See sendNotification method below.
     }
 
-    private void sendNotification(String title, String text) {
+    private void sendNotification(String title, String text,String category) {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("MapFragment", "mapfragment");
+        if (category.equals("mapFragment")) {
+            intent.putExtra("fragment", "mapFragment");
+            if (!preferenceUtil.getValue("setting_notifi", false)) {
+                return;
+            }
+        } else if (category.equals("accountFragment")) {
+            intent.putExtra("fragment", "accountFragment");
+            preferenceUtil.put("setting_notifi", false);
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,

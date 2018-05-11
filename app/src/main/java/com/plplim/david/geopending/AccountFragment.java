@@ -2,6 +2,7 @@ package com.plplim.david.geopending;
 
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -13,10 +14,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -66,10 +69,12 @@ public class AccountFragment extends Fragment implements OnMapReadyCallback, Goo
     private MapView mapView;
 
     private Switch aSwitch;
+    private Switch notifiSwitch;
 
     private MyLocationService myLocationService;
     TrakingModel trakingModel = null;
 
+    private SharedPreferenceUtil preferenceUtil;
     public AccountFragment() {
         // Required empty public constructor
     }
@@ -79,22 +84,37 @@ public class AccountFragment extends Fragment implements OnMapReadyCallback, Goo
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (googleServicesAvailable()) {
-            Toast.makeText(getContext(), "Perfect!!!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Perfect!!!", Toast.LENGTH_SHORT).show();
             rootView = inflater.inflate(R.layout.fragment_account, container, false);
+            preferenceUtil = new SharedPreferenceUtil(getContext());
             aSwitch = rootView.findViewById(R.id.account_switch);
-            aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            notifiSwitch = rootView.findViewById(R.id.account_notifi_switch);
+            notifiSwitch.setChecked(preferenceUtil.getValue("setting_notifi",false));
+            notifiSwitch.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
+                public void onClick(View view) {
+                    if (notifiSwitch.isChecked()) {
+                        preferenceUtil.put("setting_notifi", true);
+                        notifiSwitch.setChecked(true);
+                        Log.d(TAG, "onCheckedChanged: " + String.valueOf(preferenceUtil.getValue("setting_notifi", false)));
+                    } else {
+                        preferenceUtil.put("setting_notifi", false);
+                        notifiSwitch.setChecked(false);
+                        Log.d(TAG, "onCheckedChanged: " + String.valueOf(preferenceUtil.getValue("setting_notifi", false)));
+                    }
                 }
             });
             aSwitch.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     setTrakingStatus(aSwitch.isChecked());
+                    if (aSwitch.isChecked()) {
+                        Intent intent = new Intent(getActivity(), MyLocationService.class);
+                        getActivity().startService(intent);
+                    }
                 }
             });
-            getGeoPendingFromFirebase();
+            //getGeoPendingFromFirebase();
             initMap();
         } else {
             //No Google Maps Layout
@@ -186,26 +206,6 @@ public class AccountFragment extends Fragment implements OnMapReadyCallback, Goo
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         getGeoPendingFromFirebase();
-
-
-/*        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mGoogleMap.setMyLocationEnabled(true);*/
-
-/*        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        mGoogleApiClient.connect();*/
     }
 
     private void goToLocation(double lat, double lon) {
@@ -342,14 +342,33 @@ public class AccountFragment extends Fragment implements OnMapReadyCallback, Goo
                             for (DocumentSnapshot document : task.getResult()) {
                                 //Log.d(TAG, document.getId() + " => " + document.getData());
                                 trakingModel = document.toObject(TrakingModel.class);
+                            }
+                            if (trakingModel != null) {
                                 goToLocationZoom(trakingModel.getRuleLat(), trakingModel.getRuleLong(),13);
+                                aSwitch.setVisibility(View.VISIBLE);
                                 aSwitch.setChecked(trakingModel.isDestinationCheck());
                                 setMarker(trakingModel.getRuleLat(), trakingModel.getRuleLong());
+
+                            } else {
+                                showBasicDialog("Geo Pending", "트래킹 정보가 없습니다");
+                                goToLocationZoom(39.008224, -76.8984527,13);
+                                aSwitch.setVisibility(View.GONE);
                             }
                         } else {
                             goToLocationZoom(39.008224, -76.8984527,13);
                         }
                     }
                 });
+    }
+    private void showBasicDialog(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        return;
+                    }
+                }).show();
     }
 }

@@ -218,6 +218,7 @@ public class MyLocationService extends Service implements GoogleApiClient.Connec
         notificationModel.data.sender = from;
         notificationModel.data.title = "상대방의 위치를 확인하세요!";
         notificationModel.data.text = "반경을 벗어났습니다";
+        notificationModel.data.category = "mapFragment";
         notificationModel.data.sound = "default";
         notificationModel.data.priority = "high";
 

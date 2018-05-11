@@ -41,13 +41,24 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 import com.xw.repo.BubbleSeekBar;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -79,6 +90,9 @@ public class GeoPickFragment extends Fragment implements OnConnectionFailedListe
     public FirebaseAuth firebaseAuth;
     public FirebaseFirestore firebaseFirestore;
 
+    private String getDestinationToken;
+    private Users destinationUser = null;
+
     public GeoPickFragment() {
         // Required empty public constructor
     }
@@ -104,6 +118,8 @@ public class GeoPickFragment extends Fragment implements OnConnectionFailedListe
         saveButton = (Button) rootView.findViewById(R.id.geopick_button_save);
         mapView.getMapAsync(this);
 
+        getTokenFromFirebase(destinationUid);
+
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -127,6 +143,12 @@ public class GeoPickFragment extends Fragment implements OnConnectionFailedListe
                             FragmentTransaction fragmentTransaction = ((AppCompatActivity)getContext()).getSupportFragmentManager().beginTransaction();
                             fragmentTransaction.replace(R.id.main_container, new PeopleFragment());
                             fragmentTransaction.commit();
+                            if (!getDestinationToken.equals("")) {
+
+                            }
+                            if (destinationUser != null) {
+                                sendGcm(destinationUser);
+                            }
                         } else {
                             //상대방에게 요청 실패
                         }
@@ -166,6 +188,60 @@ public class GeoPickFragment extends Fragment implements OnConnectionFailedListe
                     .show();
         }
         return rootView;
+    }
+
+    private void sendGcm(Users user) {
+        Gson gson = new Gson();
+        NotificationModel notificationModel = new NotificationModel();
+
+        notificationModel.to = user.getToken();
+        notificationModel.data.title = user.name + "에게 트래킹 요청이 들어왔습니다!";
+        notificationModel.data.text = "트래킹 정보를 확인해보세요";
+        notificationModel.data.category = "accountFragment";
+        notificationModel.data.sound = "default";
+        notificationModel.data.priority = "high";
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf8"), gson.toJson(notificationModel));
+        Request request = new Request.Builder()
+                .header("Content-Type", "application/json")
+                .addHeader("Authorization", "key=AIzaSyBFKjMFI7-AV6YAaVTn9ndn8POm-vO19to")
+                .url("https://fcm.googleapis.com/fcm/send")
+                .post(requestBody)
+                .build();
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.e("SendGcm onResponse", response.toString());
+            }
+        });
+    }
+
+    private void getTokenFromFirebase(String uid) {
+        Log.d(TAG, "getTokenFromFirebase: start function");
+        FirebaseFirestore conn = FirebaseFirestore.getInstance();
+
+        conn.collection("Users").document(uid)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                String token;
+                if (task.isSuccessful()) {
+                    //Log.d(TAG, "onComplete: " + task.getResult().getData().get("token").toString());
+                    getDestinationToken = task.getResult().getData().get("token").toString();
+                    destinationUser = task.getResult().toObject(Users.class);
+                } else {
+                    getDestinationToken = "";
+                    destinationUser = null;
+                }
+            }
+        });
     }
 
     @Override

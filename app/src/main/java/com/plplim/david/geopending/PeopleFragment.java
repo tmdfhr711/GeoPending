@@ -71,8 +71,11 @@ public class PeopleFragment extends Fragment {
                         for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                             if (doc.getType() == DocumentChange.Type.ADDED) {
                                 String user_id = doc.getDocument().getId();
-                                Users users = doc.getDocument().toObject(Users.class).withId(user_id);
-                                usersList.add(users);
+                                if (!user_id.equals(firebaseAuth.getCurrentUser().getUid())) {
+                                    Users users = doc.getDocument().toObject(Users.class).withId(user_id);
+                                    usersList.add(users);
+                                }
+
 
 
                             } else if (doc.getType() == DocumentChange.Type.MODIFIED) {

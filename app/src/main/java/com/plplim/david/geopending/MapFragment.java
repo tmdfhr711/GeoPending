@@ -104,40 +104,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             startTraking();
                         } else {
                             //상대방이 허락하지 않았을 때
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                            builder.setTitle("Geo Pending")
-                                    .setMessage("상대방이 트래킹을 허용하지 않아 지도에 보이지 않습니다.")
-                                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            return;
-                                        }
-                                    }).show();
+                            showBasicDialog("Geo Pending", "상대방이 트래킹을 허용하지 않아 지도에 보이지 않습니다.");
                         }
                     } else {
                         //상대방이 허락하지 않았을 때
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        builder.setTitle("Geo Pending")
-                                .setMessage("트래킹을 트래킹 하고 있는 상대가 없습니다")
-                                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        return;
-                                    }
-                                }).show();
+                        showBasicDialog("Geo Pending", "트래킹을 트래킹 하고 있는 상대가 없습니다.");
                     }
 
                 } else {
                     //다이얼로그로 트래킹 할 대상이 없다고 띄워주고 마크 아무대나 찍기
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle("Geo Pending")
-                            .setMessage("트래킹 정보를 불러오는데 오류가 발생하였습니다")
-                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    return;
-                                }
-                            }).show();
+                    showBasicDialog("Geo Pending", "트래킹 정보를 불러오는데 오류가 발생하였습니다");
                     goToLocationZoom(39.008224, -76.8984527,DEFAULT_ZOOM);
                 }
             }
@@ -196,7 +172,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     break;
                                 case MODIFIED:
                                     Log.d(TAG, "onEvent: Modified");
-                                    setUserMarker(trakingModel.getDestinationLatitude(), trakingModel.getDestinationLongitude());
+                                    if (trakingModel.isDestinationCheck()) {
+                                        setUserMarker(trakingModel.getDestinationLatitude(), trakingModel.getDestinationLongitude());
+                                    } else {
+                                        showBasicDialog("Geo Pending", "상대방이 트래킹을 허용하지 않아 지도에 보이지 않습니다.");
+                                        setUserMarker(0, 0);
+                                    }
                                     break;
                                 case REMOVED:
                                     Log.d(TAG, "Removed city: " + dc.getDocument().getData());
@@ -207,6 +188,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 });
     }
 
+    private void showBasicDialog(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        return;
+                    }
+                }).show();
+    }
     private void setUserMarker(double lat, double lon) {
         if (userMarker != null) {
             userMarker.remove();
@@ -265,7 +257,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.d(TAG, "onMapReady: map is ready");
-        Toast.makeText(getContext(), "map is ready", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "map is ready", Toast.LENGTH_SHORT).show();
         mGoogleMap = googleMap;
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

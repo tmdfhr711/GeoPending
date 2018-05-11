@@ -9,18 +9,16 @@ public class NotificationModel {
     public static class Notification{
         public String title;
         public String text;
-        public String date;
-        public String time;
         public String sender;
+        public String category;
         public String sound;
         public String priority;
     }
     public static class Data{
         public String title;
         public String text;
-        public String date;
-        public String time;
         public String sender;
+        public String category;
         public String sound;
         public String priority;
     }
